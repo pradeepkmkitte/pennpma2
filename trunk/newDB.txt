@@ -1,0 +1,34 @@
+0,Unknown
+1,Serge,0_serguei1.wav|0_serge-family-cardholder.wav|0_serge-fed-adv-shipyard.wav|0_serge-fed-sci-station.wav|0_serge-fed-starbase.wav|0_serge-fed-trade-station.wav|0_serge-good-standing.wav|0_serge-insured-person.wav|0_serge-master-card.wav|0_serge-mysterious-disappearance.wav|0_serge-primary-cardholder.wav|0_serge-pulse-cannon.wav|0_serge-spouse.wav|0_sergueiandhismom.wav
+10,Jihed Halimi,0_jihed1.wav|0_jihed2.wav
+11,Madhumita,0_madhumita1.wav|0_madhumita2.wav|0_madhumita3.wav
+12,Javad Sadri
+13,Ira,0_ira1.wav|0_ira2.wav|0_ira3.wav
+14,Aihua,0_aihua1.wav|0_aihua10.wav|0_aihua11.wav|0_aihua12.wav|0_aihua13.wav|0_aihua14.wav|0_aihua15.wav|0_aihua2.wav|0_aihua3.wav|0_aihua4.wav|0_aihua6.wav|0_aihua7.wav|0_aihua8.wav|0_aihua9.wav|1001.wav
+15,Nick,0_nick10.wav|0_nick2.wav|0_nick3.wav|0_nick4.wav|0_nick5.wav|0_nick6.wav|0_nick7.wav|0_nick8.wav|0_nick9.wav
+16,Michelle,0_michelle10.wav|0_michelle11.wav|0_michelle12.wav|0_michelle13.wav|0_michelle14.wav|0_michelle15.wav|0_michelle2.wav|0_michelle3.wav|0_michelle4.wav|0_michelle5.wav|0_michelle6.wav|0_michelle7.wav|0_michelle8.wav|0_michelle9.wav|1002.wav
+17,Shabana,0_shabana1.wav|0_shabana2.wav|0_shabana3.wav|0_shabana4.wav|0_shabana5.wav|0_shabana6.wav|0_shabana7.wav
+18,Van Halen,0_vanh1.wav|0_vanh2.wav|0_vanh3.wav|0_vanh4.wav|0_vanh5.wav|0_vanh6.wav|0_vanh7.wav|0_vanh8.wav
+19, ,0_rhcp1.wav|0_rhcp2.wav|0_rhcp3.wav|0_rhcp4.wav|0_rhcp5.wav|0_rhcp6.wav|0_rhcp7.wav|0_rhcp8.wav
+2,Ian,0_ian1.wav|0_ian2.wav|0_ian3.wav|0_ian4.wav|0_ian5.wav|0_ian6.wav|0_ian7.wav|0_ian8.wav|0_ian9.wav|0_ian10.wav|0_ian11.wav|0_ian12.wav|0_ian13.wav|0_ian14.wav
+20,Talal Al-Khoury,0_talal1.wav|0_talal2.wav|0_talal3.wav|0_talal4.wav|0_talal5.wav|0_talal6.wav|0_talal8.wav|0_talal9.wav|0_talal10.wav|0_talal11.wav|0_talal12.wav|0_talal13.wav|0_talal14.wav|0_talal15.wav
+21,Ke Gong,0_ke1.wav|0_ke2.wav|0_ke3.wav|0_ke4.wav|0_ke5.wav|0_ke6.wav|0_ke8.wav|0_ke9.wav|0_ke10.wav|0_ke11.wav|0_ke12.wav|0_ke13.wav|0_ke14.wav|0_ke15.wav
+22,Emily Wu Rong,0_emily1.wav|0_emily3.wav|0_emily4.wav|0_emily5.wav|0_emily6.wav|0_emily7.wav|0_emily8.wav|0_emily9.wav|0_emily10.wav|0_emily11.wav|0_emily12.wav|0_emily13.wav|0_emily14.wav|0_emily15.wav
+23,Emily Ying Lu,0_yinglu10.wav|0_yinglu11.wav|0_yinglu12jp.wav|0_yinglu13zh.wav|0_yinglu14.wav|0_yinglu15.wav|0_yinglu2.wav|0_yinglu3.wav|0_yinglu4.wav|0_yinglu5.wav|0_yinglu6.wav|0_yinglu7.wav|0_yinglu8.wav|0_yinglu9.wav
+24,Shaozhen Fang,0_sfang10.wav|0_sfang11.wav|0_sfang12.wav|0_sfang13.wav|0_sfang14.wav|0_sfang15.wav|0_sfang1.wav|0_sfang2.wav|0_sfang3.wav|0_sfang4.wav|0_sfang5.wav|0_sfang6.wav|0_sfang8.wav|0_sfang9.wav
+25,Chunlei He,0_cl_he10.wav|0_cl_he11.wav|0_cl_he13.wav|0_cl_he14.wav|0_cl_he15.wav|0_cl_he1.wav|0_cl_he2.wav|0_cl_he3.wav|0_cl_he4.wav|0_cl_he5.wav|0_cl_he6.wav|0_cl_he7.wav|0_cl_he8.wav|0_cl_he9.wav
+26,Susan Shuxin Fan,0_sx1.wav|0_sx2.wav|0_sx3.wav|0_sx4.wav|0_sx5.wav|0_sx6.wav|0_sx7.wav|0_sx8.wav|0_sx9.wav|0_sx10.wav|0_sx11.wav|0_sx12.wav|0_sx13.wav|0_sx14.wav|0_sx15.wav
+27,Shivani Bhat,0_shivani1.wav|0_shivani2.wav|0_shivani3.wav|0_shivani4.wav|0_shivani6.wav|0_shivani7.wav|0_shivani8.wav|0_shivani9.wav|0_shivani10.wav|0_shivani11.wav|0_shivani12.wav|0_shivani13.wav|0_shivani14.wav|0_shivani15.wav
+28,Erika Sanchez,0_erika1.wav|0_erika2.wav|0_erika3.wav|1003.wav|1004.wav|1005.wav|1010.wav|1011.wav|1013.wav|1014.wav|1017.wav|1022.wav|1023.wav|1024.wav|1025.wav|1026.wav|1033.wav|1034.wav
+29,Shawn Green,0_shawn1.wav|0_shawn2.wav|1006.wav
+3,Steve,0_steve1.wav|0_steve-train1.wav|0_steve-train2.wav|0_steve-train3.wav|0_steve-train4.wav|0_steve-train5.wav|0_steve-train6.wav|0_steve-train7.wav|0_steve-train8.wav|0_steve-train9.wav|0_steve-train10.wav|0_steve-train11.wav|0_steve-train12.wav
+30, ,1007.wav|1008.wav|1009.wav|1012.wav|1015.wav|1016.wav
+31, ,1018.wav|1019.wav|1020.wav|1021.wav
+32, ,1027.wav|1028.wav|1029.wav
+33, ,1030.wav|1031.wav|1032.wav
+4,Jimmy,0_jim10.wav|0_jim11.wav|0_jim12.wav|0_jim13.wav|0_jim14.wav|0_jim15.wav|0_jim1.wav|0_jim2.wav|0_jim3.wav|0_jim4.wav|0_jim5.wav|0_jim7.wav|0_jim8.wav|0_jim9.wav|0_jimmy1.wav|0_jimmy2.wav
+5,Dr. Suen,0_suen1.wav|0_suen2.wav
+6,Margarita Mokhova,0_rita1.wav|0_rita2.wav|0_rita3.wav|0_rita4.wav|0_rita5.wav|0_rita7.wav|0_rita8.wav|0_rita9.wav|0_rita10.wav|0_rita11.wav|0_rita12.wav|0_rita13.wav|0_rita14.wav|0_rita15.wav
+7,Alexei Mokhov,0_sei-assimilator.wav|0_sei-borg-detector-array.wav|0_sei-borg-torpedo-turret.wav|0_sei-colony-ship.wav|0_sei-cube.wav|0_sei-diamond.wav|0_sei-diamond2.wav|0_sei-fusion-cube.wav|0_sei-harmonic-defender.wav|0_sei-nexus.wav|0_sei-tactical-cube.wav|0_sei-tactical-fusion-cube.wav|0_sei-tech-assimilator.wav|0_sei-transwarp-gate.wav
+8,Alexandr Mokhov,0_alexandrm1.wav|0_alexandrm2.wav|0_alexandrm3.wav|0_alexandrm4.wav|0_alexandrm5.wav|0_alexandrm6.wav|0_alexandrm8.wav|0_alexandrm9.wav|0_alexandrm10.wav|0_alexandrm11.wav|0_alexandrm12.wav|0_alexandrm13.wav|0_alexandrm14.wav|0_alexandrm15.wav
+9,Graham,0_graham1.wav|0_graham2.wav|0_graham3.wav|0_graham4.wav|0_graham5.wav|0_graham6.wav|0_graham7.wav|0_graham8.wav|0_graham9.wav|0_graham10.wav|0_graham11.wav|0_graham12.wav
