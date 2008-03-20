@@ -8,107 +8,73 @@ public class speakerApp
 {
 
 	protected static SpeakersIdentDb soDB;
-	static Scanner sc = new Scanner(System.in);
 	
-		  
+	//Current file name
+	static String name="";
+	
+	//List of all samples in the folder
+	static File[] aoFiles;
+	
+	//Database text file
+	static File db;
+	
+
+	
 	public static void main(String[ ] argv){
+		try{
+			setConfig();
+		}
+		catch(MARFException e){
+			System.out.println("can't set config");
+		}
+		
+		
+		if(argv[0].compareToIgnoreCase("begin")==0){
+			System.out.print("begin...");
+			begin();
+		}
+		else if(argv[0].compareToIgnoreCase("IDfound")==0){
+			IDfound(argv[1]);
+		}
+		else if(argv[0].compareToIgnoreCase("totTrain")==0){
+			totTrain();
+		}
+		else
+			System.out.println("type an option dumbass!");
+		
+	}
 	
-		//File with final ID
-		File confirmed = new File("confirmed.txt");
+	public static void begin(){
 		
 		//Database text file
-		File db = new File("newDB.txt");
-		
-		//List of all samples in the folder
-		File[] aoFiles = new File("training-samples").listFiles();
-			
-		//Name of last sample to name new sample
+		db = new File("newDB.txt");
+					
 		String lastSaved = "9998";
-		
-		//Name of new file
-		String name = "";
-		
-		//Confirmed ID
-		String identity = "";
-	
-		
+			
+				
 		try
 		{	
-			db.createNewFile();
-			newDB();			
-			
 			soDB = new SpeakersIdentDb("newDB.txt");
 			
 			//open text file and populate data structure
 			soDB.connect();
 			soDB.query();
-			setConfig();
 			
-			
-			if(argv.length>0){
 				
-				//Training cluster needs to be deleted
-				File cluster = new File("marf.Storage.TrainingSet.100.301.512.gzbin");
-								
-				//delete old training cluster
-				if(cluster.exists()){
-					if(!cluster.delete())
-						System.out.println("Cluster not deleted");
-				}
+			//get number of last sample saved (numbers start at 1000)
+			aoFiles = new File("training-samples").listFiles();
+			lastSaved = aoFiles[aoFiles.length-1].getName();
+			lastSaved=lastSaved.substring(0, 4);
 				
-				String strFileName = "";
-				
-				//TRAINING ON ENTIRE DIRECTORY, ONE FILE AT A TIME
-				for(int i = 0; i < aoFiles.length; i++)
-				{
-					strFileName = aoFiles[i].getPath();
-					if(aoFiles[i].isFile() && strFileName.toLowerCase().endsWith(".wav"))
-					{
-						train(strFileName);
-					}
-				}
-			}
+			//start the record process, passes the number of the last sample saved
+			record sample = new record(Integer.parseInt(lastSaved));
 	
-			/*start loop so that after a sample is collected, identified and 
-			 * trained, a new sample may be collected
-			 */
-			while(true){
-				//get number of last sample saved (numbers start at 1000)
-				aoFiles = new File("training-samples").listFiles();
-				lastSaved = aoFiles[aoFiles.length-1].getName();
-				lastSaved=lastSaved.substring(0, 4);
+			//the name assigned to the sample by recorded
+			name = sample.getName();
 				
-				//start the record process, passes the number of the last sample saved
-				record sample = new record(Integer.parseInt(lastSaved));
-	
-				//the name assigned to the sample by recorded
-				name = sample.getName();
+			//IDENTIFY
+			ident(name);			
 				
-				//IDENTIFY
-				ident(name);			
-
-				
-					//get actual ID input from console
-					System.out.print("ID: ");
-					identity = sc.nextLine();
-					
-//					//get actual ID input from File
-//					while(!confirmed.exists()){}
-//					BufferedReader conf =  new BufferedReader(new FileReader(confirmed));
-//					identity=conf.readLine();
-//					if(confirmed.delete())
-//						System.out.println("..ID read..");					
-				
-				entryTrain(identity,name);
-				
-				newDB();
-				soDB = new SpeakersIdentDb("newDB.txt");
-				soDB.connect();
-				soDB.query();
-				setConfig();
-				
-				train("training-samples\\"+name);				
-			}
 		}
 
 //		MARF specific errors thrown by ident, train, setConfig, connect, query
@@ -118,11 +84,6 @@ public class speakerApp
 			e.printStackTrace(System.err);
 		}
 
-//		IO error thrown by createNewFile
-		catch(IOException e){
-			System.out.println("error");
-		}
-		
 //		close the db connection
 		finally
 		{
@@ -139,7 +100,109 @@ public class speakerApp
 	
 	}
 
+	public static void totTrain(){
+		
+		aoFiles = new File("training-samples").listFiles();
 
+		try{
+			
+			//Training cluster needs to be deleted
+			File cluster = new File("marf.Storage.TrainingSet.100.301.512.gzbin");
+							
+			//delete old training cluster
+			if(cluster.exists()){
+				if(!cluster.delete())
+					System.out.println("Cluster not deleted");
+			}
+			
+			db = new File("newDB.txt");
+			db.createNewFile();
+			newDB();			
+			
+			soDB = new SpeakersIdentDb("newDB.txt");
+			
+			//open text file and populate data structure
+			soDB.connect();
+			soDB.query();
+						
+			String strFileName = "";
+			
+			//TRAINING ON ENTIRE DIRECTORY, ONE FILE AT A TIME
+			for(int i = 0; i < aoFiles.length; i++)
+			{
+				strFileName = aoFiles[i].getPath();
+				if(aoFiles[i].isFile() && strFileName.toLowerCase().endsWith(".wav"))
+				{
+					train(strFileName);
+				}
+			}
+		}
+		catch(MARFException e)
+		{
+			System.err.println(e.getMessage());
+			e.printStackTrace(System.err);
+		}
+
+//		IO error thrown by createNewFile
+		catch(IOException e){
+			System.out.println("error");
+		}
+		
+		
+	}
+
+	public static void IDfound(String id){
+		File nameSave = new File("nameSave.txt");
+		if(nameSave.exists()){
+			try{
+				
+				BufferedReader nS = new BufferedReader(new FileReader(nameSave));
+				name = nS.readLine();
+				nS.close();
+				entryTrain(id,name);
+				
+				newDB();
+				soDB = new SpeakersIdentDb("newDB.txt");
+				soDB.connect();
+				soDB.query();
+					
+				train("training-samples\\"+name);
+				
+				nameSave.delete();
+				
+				File guess = new File("svID.txt");
+				guess.delete();
+			}
+	//		MARF specific errors thrown by ident, train, setConfig, connect, query
+			catch(MARFException e)
+			{
+				System.err.println(e.getMessage());
+				e.printStackTrace(System.err);
+			}
+			catch(IOException e){
+				System.out.println("IDfound name read broke");
+			}
+	
+	//		close the db connection
+			finally
+			{
+				try
+				{
+					soDB.close();
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace(System.err);
+					System.exit(-1);
+				}
+			}
+		}
+		else
+			System.out.println("The ID has already been set for the last sample recorded.");
+	}
+
+	
+	
 /**
  * Creates or edits the text file for a specific speaker. This text file
  * holds a list of the training samples for the speaker. If the speaker is new,
@@ -159,6 +222,7 @@ public class speakerApp
 			if(eT.exists()){
 				  BufferedReader input =  new BufferedReader(new FileReader(eT));
 			      String reading=input.readLine();
+			      input.close();
 			      writing = new BufferedWriter(new FileWriter(eT));
 			      writing.write(reading+"|"+filename);
 			      writing.close();
@@ -201,7 +265,7 @@ public class speakerApp
 	      String line = null;
 	      
 //	      use the reader to read each file in the directory
-	      for(int i=0; i<dbFiles.length;i++)
+	      for(int i=1; i<dbFiles.length;i++)
 	      {
 	    	  input = new BufferedReader(new FileReader(dbFiles[i]));
 	    	  
@@ -245,14 +309,19 @@ public class speakerApp
 		try{
 			
 //			create writer and file to communicate filename, first ID, and second best ID to PMA
-			BufferedWriter writing;
+			BufferedWriter writing, nS;
 			File toDATABASE = new File("svID.txt");
-	        toDATABASE.createNewFile();
+	        File nameSave = new File("nameSave.txt");
+			toDATABASE.createNewFile();
+			nameSave.createNewFile();
 			
 	        writing = new BufferedWriter(new FileWriter(toDATABASE));
+	        nS = new BufferedWriter(new FileWriter(nameSave));
+	        
 			
-	        writing.write(name);
-	        writing.newLine();
+	        nS.write(name);
+	        nS.close();
+	        
 			writing.write(Integer.toString(iIdentifiedID));
 			writing.newLine();
 			writing.write(Integer.toString(iSecondClosestID));
