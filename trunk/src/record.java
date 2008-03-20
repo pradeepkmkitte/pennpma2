@@ -15,20 +15,18 @@ public class record extends JFrame{
   record(int sN){
 	  	sampleNum= sN+1; //needs to be incremented to name new sample
 	  	fileName = sampleNum + ".wav";
-	  	System.out.print("\npress 'Enter' to start recording");
-	    String start = sc.nextLine();
 	    
-//	    When a line is read, recording starts by starting a 'capture thread', 
+//	    Recording starts by starting a 'capture thread', 
 //	    once the thread is opened, it returns
 	    findMic();
-//	    System.out.println("Sample saved:"+fileName);
-	    System.out.print("press 'Enter' to stop recording");
+
+	    System.out.print("\tpress 'Enter' to stop recording");
 	    String end = sc.nextLine();
 	    
 //	    When a line is read, stop and close the targetLine to stop writing
 //	    to the file
 	    line.stop();
-	    line.close(); 
+	    line.close();
   }
   
   public String getName(){
