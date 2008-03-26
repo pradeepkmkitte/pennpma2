@@ -63,7 +63,7 @@ public class record extends JFrame{
 	  public void run(){
 	
 //		set the file destination
-	    File newSample = new File("training-samples\\" + fileName);
+	    File newSample = new File("training-samples/" + fileName);
 	
 	    try{
 //	      open and start a data line to collect data with the designated format

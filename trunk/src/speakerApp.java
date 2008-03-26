@@ -37,6 +37,9 @@ public class speakerApp
 		else if(argv[0].compareToIgnoreCase("delete")==0){
 			delete(argv[1]);
 		}
+		else if(argv[0].compareToIgnoreCase("totTrain")==0){
+			totTrain();
+		}
 		else{
 			System.out.println("enter a function, dumbass!");
 		}
@@ -177,7 +180,7 @@ public class speakerApp
 				soDB.connect();
 				soDB.query();
 					
-				train("training-samples\\"+name);
+				train("training-samples/"+name);
 				
 				nameSave.delete();
 				
@@ -236,7 +239,7 @@ public class speakerApp
 				}
 			}
 			
-			File delEntry = new File("databases\\"+id+".txt");
+			File delEntry = new File("databases/"+id+".txt");
 			if(!delEntry.exists())
 				System.out.println("can't find text file!");
 			else
@@ -273,7 +276,7 @@ public class speakerApp
 	public static final void entryTrain(String identity, String filename)
 	{
 //		create File object to control this identity's database entry
-		File eT = new File("databases\\" + identity + ".txt");
+		File eT = new File("databases/" + identity + ".txt");
 		Writer writing;
 	    try{
 //	    	if the entry already exists, add to the end of it
@@ -352,9 +355,14 @@ public class speakerApp
 */
 	public static final void ident(String name) throws MARFException
 	{
-		String pstrFilename = "training-samples\\"+ name;
+		String pstrFilename = "training-samples/"+ name;
 		MARF.setSampleFile(pstrFilename);
 		MARF.recognize();
+		
+		if ( MARF.getResultSet().size() == 0 ) {
+			System.out.println("No results");
+			System.exit(0);
+		}
 
 		// First guess
 		int iIdentifiedID = MARF.queryResultID();
