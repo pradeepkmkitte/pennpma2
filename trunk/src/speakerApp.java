@@ -37,7 +37,9 @@ public class speakerApp
 		else if(argv[0].compareToIgnoreCase("delete")==0){
 			delete(argv[1]);
 		}
-		else{}
+		else{
+			System.out.println("enter a function, dumbass!");
+		}
 		
 	}
 	
