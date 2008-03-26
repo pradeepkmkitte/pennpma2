@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.Scanner;
 
 import marf.MARF;
 import marf.util.MARFException;
@@ -28,7 +27,6 @@ public class speakerApp
 			System.out.println("can't set config");
 		}
 		
-		
 		if(argv[0].compareToIgnoreCase("begin")==0){
 			System.out.print("begin...");
 			begin();
@@ -36,11 +34,10 @@ public class speakerApp
 		else if(argv[0].compareToIgnoreCase("IDfound")==0){
 			IDfound(argv[1]);
 		}
-		else if(argv[0].compareToIgnoreCase("totTrain")==0){
-			totTrain();
+		else if(argv[0].compareToIgnoreCase("delete")==0){
+			delete(argv[1]);
 		}
-		else
-			System.out.println("type an option dumbass!");
+		else{}
 		
 	}
 	
@@ -147,6 +144,18 @@ public class speakerApp
 		catch(IOException e){
 			System.out.println("error");
 		}
+		finally
+		{
+			try
+			{
+				soDB.close();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace(System.err);
+				System.exit(-1);
+			}
+		}
 		
 		
 	}
@@ -201,7 +210,54 @@ public class speakerApp
 			System.out.println("The ID has already been set for the last sample recorded.");
 	}
 
-	
+	public static void delete(String id){
+		try{
+			
+			soDB = new SpeakersIdentDb("newDB.txt");
+			
+			//open text file and populate data structure
+			soDB.connect();
+			soDB.query();
+			
+			aoFiles = new File("training-samples").listFiles();
+			int idCheck;
+			for(int i=0;i<aoFiles.length;i++){
+				MARF.setSampleFile(aoFiles[i].getName());
+				idCheck = soDB.getIDByFilename(aoFiles[i].getName(), true);
+				String path=aoFiles[i].getPath();
+				if(Integer.parseInt(id)==idCheck){
+					System.out.println("ID matches: "+aoFiles[i].getName());
+					if(path.toLowerCase().endsWith(".wav")){
+						if(aoFiles[i].delete())
+							System.out.println("deleted");
+					}
+				}
+			}
+			
+			File delEntry = new File("databases\\"+id+".txt");
+			if(!delEntry.exists())
+				System.out.println("can't find text file!");
+			else
+				delEntry.delete();
+			
+			totTrain();
+		}
+		catch(MARFException e){
+			System.out.println("aoFiles[i].getName error");
+		}
+		finally
+		{
+			try
+			{
+				soDB.close();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace(System.err);
+				System.exit(-1);
+			}
+		}
+	}
 	
 /**
  * Creates or edits the text file for a specific speaker. This text file
@@ -237,10 +293,10 @@ public class speakerApp
 			}
 		}
 		catch(FileNotFoundException e){
-			System.out.println("entryTransit -- file not found");
+			System.out.println("entryTrain -- file not found");
 		}
 		catch(IOException e){
-			System.out.println("entryTransit -- io exception");
+			System.out.println("entryTrain -- io exception");
 		}
 	}
 	
@@ -252,8 +308,6 @@ public class speakerApp
 	{
 		
 		File[] dbFiles = new File("databases").listFiles();
-		
-		
 		
 	    try {
 	    	
