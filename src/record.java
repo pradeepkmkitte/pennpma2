@@ -40,7 +40,7 @@ public class record extends JFrame{
   private void findMic(){
     try{
   
-      DataLine.Info info = new DataLine.Info( TargetDataLine.class, format);
+      DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
       line = (TargetDataLine) AudioSystem.getLine(info);
 //      if(!line.isActive()){
 //    	  System.out.println("\n\nNO MIC **EXITING...**\n\n");
@@ -62,8 +62,7 @@ public class record extends JFrame{
 	class SaveThread extends Thread{
 	  public void run(){
 	
-//		set the filetype (wave) and file destination
-	    AudioFileFormat.Type type = AudioFileFormat.Type.WAVE;
+//		set the file destination
 	    File newSample = new File("training-samples\\" + fileName);
 	
 	    try{
@@ -72,7 +71,7 @@ public class record extends JFrame{
 	      line.start();
 	      
 //	      write to the file using the line input with correct type and destination
-	      AudioSystem.write( new AudioInputStream(line), type, newSample);
+	      AudioSystem.write( new AudioInputStream(line), AudioFileFormat.Type.WAVE, newSample);
 	    }
 //	    Exceptions thrown by AudioSystem.write and line.open
 	    catch (Exception e){
