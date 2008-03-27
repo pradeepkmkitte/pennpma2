@@ -104,6 +104,8 @@ public class speakerApp
 
 	public static void totTrain(){
 		
+		System.out.println("Hold up. I'm training. Patience is a virtue.");
+		
 		aoFiles = new File("training-samples").listFiles();
 
 		try{
@@ -249,18 +251,6 @@ public class speakerApp
 		}
 		catch(MARFException e){
 			System.out.println("aoFiles[i].getName error");
-		}
-		finally
-		{
-			try
-			{
-				soDB.close();
-			}
-			catch(Exception e)
-			{
-				e.printStackTrace(System.err);
-				System.exit(-1);
-			}
 		}
 	}
 	
