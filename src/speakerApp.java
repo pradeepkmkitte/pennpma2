@@ -22,9 +22,8 @@ public class speakerApp
 	static String dbFolder = "speaker/databases";
 	static String cName = "marf.Storage.TrainingSet.100.301.512.gzbin";
 	static String nSave = "speaker/nameSave.txt";
-	static String sent = "svID.txt";
+	static String sent = "speaker/speakerids.txt";
 	
-
 	
 	public static void main(String[ ] argv){
 		
