@@ -17,9 +17,19 @@ public class speakerApp
 	//Database text file
 	static File db;
 	
+	static String database = "speaker/newDB.txt";
+	static String samplesFolder = "speaker/training-samples";
+	static String dbFolder = "speaker/databases";
+	static String cName = "marf.Storage.TrainingSet.100.301.512.gzbin";
+	static String nSave = "speaker/nameSave.txt";
+	static String sent = "svID.txt";
+	
 
 	
 	public static void main(String[ ] argv){
+		
+		System.out.println(argv[0]);
+		
 		try{
 			setConfig();
 		}
@@ -49,14 +59,14 @@ public class speakerApp
 	public static void begin(){
 		
 		//Database text file
-		db = new File("newDB.txt");
+		db = new File(database);
 					
 		String lastSaved = "9998";
 			
 				
 		try
 		{	
-			soDB = new SpeakersIdentDb("newDB.txt");
+			soDB = new SpeakersIdentDb(database);
 			
 			//open text file and populate data structure
 			soDB.connect();
@@ -64,7 +74,7 @@ public class speakerApp
 			
 				
 			//get number of last sample saved (numbers start at 1000)
-			aoFiles = new File("training-samples").listFiles();
+			aoFiles = new File(samplesFolder).listFiles();
 			lastSaved = aoFiles[aoFiles.length-1].getName();
 			lastSaved=lastSaved.substring(0, 4);
 				
@@ -106,12 +116,12 @@ public class speakerApp
 		
 		System.out.println("Hold up. I'm training. Patience is a virtue.");
 		
-		aoFiles = new File("training-samples").listFiles();
+		aoFiles = new File(samplesFolder).listFiles();
 
 		try{
 			
 			//Training cluster needs to be deleted
-			File cluster = new File("marf.Storage.TrainingSet.100.301.512.gzbin");
+			File cluster = new File(cName);
 							
 			//delete old training cluster
 			if(cluster.exists()){
@@ -119,11 +129,11 @@ public class speakerApp
 					System.out.println("Cluster not deleted");
 			}
 			
-			db = new File("newDB.txt");
+			db = new File(database);
 			db.createNewFile();
 			newDB();			
 			
-			soDB = new SpeakersIdentDb("newDB.txt");
+			soDB = new SpeakersIdentDb(database);
 			
 			//open text file and populate data structure
 			soDB.connect();
@@ -168,7 +178,7 @@ public class speakerApp
 	}
 
 	public static void IDfound(String id){
-		File nameSave = new File("nameSave.txt");
+		File nameSave = new File(nSave);
 		if(nameSave.exists()){
 			try{
 				
@@ -178,15 +188,15 @@ public class speakerApp
 				entryTrain(id,name);
 				
 				newDB();
-				soDB = new SpeakersIdentDb("newDB.txt");
+				soDB = new SpeakersIdentDb(database);
 				soDB.connect();
 				soDB.query();
 					
-				train("training-samples/"+name);
+				train(samplesFolder+"/"+name);
 				
 				nameSave.delete();
 				
-				File guess = new File("svID.txt");
+				File guess = new File(sent);
 				guess.delete();
 			}
 	//		MARF specific errors thrown by ident, train, setConfig, connect, query
@@ -220,28 +230,28 @@ public class speakerApp
 	public static void delete(String id){
 		try{
 			
-			soDB = new SpeakersIdentDb("newDB.txt");
+			soDB = new SpeakersIdentDb(database);
 			
 			//open text file and populate data structure
 			soDB.connect();
 			soDB.query();
 			
-			aoFiles = new File("training-samples").listFiles();
+			aoFiles = new File(samplesFolder).listFiles();
 			int idCheck;
 			for(int i=0;i<aoFiles.length;i++){
 				MARF.setSampleFile(aoFiles[i].getName());
 				idCheck = soDB.getIDByFilename(aoFiles[i].getName(), true);
 				String path=aoFiles[i].getPath();
 				if(Integer.parseInt(id)==idCheck){
-					System.out.println("ID matches: "+aoFiles[i].getName());
 					if(path.toLowerCase().endsWith(".wav")){
-						if(aoFiles[i].delete())
-							System.out.println("deleted");
+						if(aoFiles[i].delete()){
+							System.out.println("ID matches: "+aoFiles[i].getName()+" <- deleted");
+						}
 					}
 				}
 			}
 			
-			File delEntry = new File("databases/"+id+".txt");
+			File delEntry = new File(database+"/"+id+".txt");
 			if(!delEntry.exists())
 				System.out.println("can't find text file!");
 			else
@@ -266,7 +276,7 @@ public class speakerApp
 	public static final void entryTrain(String identity, String filename)
 	{
 //		create File object to control this identity's database entry
-		File eT = new File("databases/" + identity + ".txt");
+		File eT = new File(database+"/" + identity + ".txt");
 		Writer writing;
 	    try{
 //	    	if the entry already exists, add to the end of it
@@ -302,12 +312,12 @@ public class speakerApp
 	public static final void newDB()
 	{
 		
-		File[] dbFiles = new File("databases").listFiles();
+		File[] dbFiles = new File(dbFolder).listFiles();
 		
 	    try {
 	    	
 //		  create new object for the database text file and writer to write to it
-	      File newDB = new File("newDB.txt");
+	      File newDB = new File(database);
 		  BufferedWriter output = new BufferedWriter(new FileWriter(newDB));
 			
 	      BufferedReader input;
@@ -345,7 +355,7 @@ public class speakerApp
 */
 	public static final void ident(String name) throws MARFException
 	{
-		String pstrFilename = "training-samples/"+ name;
+		String pstrFilename = samplesFolder+"/"+ name;
 		MARF.setSampleFile(pstrFilename);
 		MARF.recognize();
 		
@@ -364,8 +374,8 @@ public class speakerApp
 			
 //			create writer and file to communicate filename, first ID, and second best ID to PMA
 			BufferedWriter writing, nS;
-			File toDATABASE = new File("svID.txt");
-	        File nameSave = new File("nameSave.txt");
+			File toDATABASE = new File(sent);
+	        File nameSave = new File(nSave);
 			toDATABASE.createNewFile();
 			nameSave.createNewFile();
 			

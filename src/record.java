@@ -10,6 +10,7 @@ public class record extends JFrame{
   static Scanner sc = new Scanner(System.in);
   int sampleNum;
   String fileName;
+  String samplesFolder="speaker/training-samples";
 
    
   record(int sN){
@@ -42,11 +43,9 @@ public class record extends JFrame{
   
       DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
       line = (TargetDataLine) AudioSystem.getLine(info);
-//      if(!line.isActive()){
-//    	  System.out.println("\n\nNO MIC **EXITING...**\n\n");
-//    	  System.exit(0);
-//      }
+
       new SaveThread().start();
+
     }
 //    LineUnavailableException thrown by AudioSystem.getLine
     catch (Exception e) {
@@ -63,7 +62,7 @@ public class record extends JFrame{
 	  public void run(){
 	
 //		set the file destination
-	    File newSample = new File("training-samples/" + fileName);
+	    File newSample = new File(samplesFolder+"/" + fileName);
 	
 	    try{
 //	      open and start a data line to collect data with the designated format
