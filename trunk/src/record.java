@@ -1,9 +1,8 @@
-import javax.swing.*;
 import java.io.*;
 import javax.sound.sampled.*;
 import java.util.*;
 
-public class record extends JFrame{
+public class record{
 
   static AudioFormat format = new AudioFormat(8000.0F, 16, 1, true, true);
   static TargetDataLine line;
