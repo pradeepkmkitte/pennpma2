@@ -27,7 +27,7 @@ public class speakerApp
 	
 	public static void main(String[ ] argv){
 		
-		System.out.println(argv[0]);
+//		System.out.println(argv[0]);
 		
 		try{
 			setConfig();
