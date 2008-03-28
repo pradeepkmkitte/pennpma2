@@ -27,7 +27,7 @@ public class speakerApp
 	
 	public static void main(String[ ] argv){
 		
-//		System.out.println(argv[0]);
+		System.out.println(argv[0]);
 		
 		try{
 			setConfig();
@@ -275,7 +275,7 @@ public class speakerApp
 	public static final void entryTrain(String identity, String filename)
 	{
 //		create File object to control this identity's database entry
-		File eT = new File(database+"/" + identity + ".txt");
+		File eT = new File(dbFolder+"/" + identity + ".txt");
 		Writer writing;
 	    try{
 //	    	if the entry already exists, add to the end of it
