@@ -10,7 +10,6 @@ public class record{
   int sampleNum;
   String fileName;
   String samplesFolder="speaker/training-samples";
-
    
   record(int sN){
 	  	sampleNum= sN+1; //needs to be incremented to name new sample
