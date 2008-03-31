@@ -27,30 +27,28 @@ public class speakerApp
 	
 	public static void main(String[ ] argv){
 		
-		System.out.println(argv[0]);
-		
 		try{
 			setConfig();
 		}
 		catch(MARFException e){
-			System.out.println("can't set config");
+			System.err.println("Cannot set configuration");
 		}
 		
-		if(argv[0].compareToIgnoreCase("begin")==0){
+		if(argv[0].compareToIgnoreCase("identify")==0){
 			System.out.print("begin...");
 			begin();
 		}
-		else if(argv[0].compareToIgnoreCase("IDfound")==0){
-			IDfound(argv[1]);
+		else if(argv[0].compareToIgnoreCase("save")==0){
+			IDFound(argv[1]);
 		}
-		else if(argv[0].compareToIgnoreCase("delete")==0){
+		else if(argv[0].compareToIgnoreCase("erase")==0){
 			delete(argv[1]);
 		}
-		else if(argv[0].compareToIgnoreCase("totTrain")==0){
+		else if(argv[0].compareToIgnoreCase("train")==0){
 			totTrain();
 		}
 		else{
-			System.out.println("enter a function, dumbass!");
+			System.err.println("Enter a function, dumbass!");
 		}
 		
 	}
@@ -59,32 +57,36 @@ public class speakerApp
 		
 		//Database text file
 		db = new File(database);
-					
-		String lastSaved = "9998";
-			
+		
+		String lastSaved = "1000";
 				
 		try
 		{	
 			soDB = new SpeakersIdentDb(database);
 			
-			//open text file and populate data structure
+			// open text file and populate data structure
 			soDB.connect();
 			soDB.query();
+				
+			// get number of last sample saved (numbers start at 1000)
+			FilenameFilter filter = new FilenameFilter() {
+		        public boolean accept(File dir, String name) {
+		            return name.endsWith(".wav");
+		        }
+		    };
 			
+			aoFiles = new File(samplesFolder).listFiles(filter);
+			if ( aoFiles.length > 0 )
+				lastSaved = aoFiles[aoFiles.length-1].getName().substring(0, 4);
 				
-			//get number of last sample saved (numbers start at 1000)
-			aoFiles = new File(samplesFolder).listFiles();
-			lastSaved = aoFiles[aoFiles.length-1].getName();
-			lastSaved=lastSaved.substring(0, 4);
-				
-			//start the record process, passes the number of the last sample saved
+			// start the record process, passes the number of the last sample saved
 			record sample = new record(Integer.parseInt(lastSaved));
 	
-			//the name assigned to the sample by recorded
+			// the name assigned to the sample by recorded
 			name = sample.getName();
 				
-			//IDENTIFY
-			ident(name);			
+			// IDENTIFY
+			ident(name);
 				
 		}
 
@@ -125,7 +127,7 @@ public class speakerApp
 			//delete old training cluster
 			if(cluster.exists()){
 				if(!cluster.delete())
-					System.out.println("Cluster not deleted");
+					System.err.println("Cluster not deleted");
 			}
 			
 			db = new File(database);
@@ -158,7 +160,7 @@ public class speakerApp
 
 //		IO error thrown by createNewFile
 		catch(IOException e){
-			System.out.println("error");
+			System.err.println("Error creating file");
 		}
 		finally
 		{
@@ -176,7 +178,7 @@ public class speakerApp
 		
 	}
 
-	public static void IDfound(String id){
+	public static void IDFound(String id){
 		File nameSave = new File(nSave);
 		if(nameSave.exists()){
 			try{
@@ -358,20 +360,27 @@ public class speakerApp
 		MARF.setSampleFile(pstrFilename);
 		MARF.recognize();
 		
-		if ( MARF.getResultSet().size() == 0 ) {
+		int iIdentifiedID = 0, iSecondClosestID = 0;
+		int numResults = MARF.getResultSet().size();
+		
+		if ( numResults == 0 )
 			System.out.println("No results");
-			System.exit(0);
+		
+		else {
+			
+			// First guess
+			iIdentifiedID = MARF.queryResultID();
 		}
-
-		// First guess
-		int iIdentifiedID = MARF.queryResultID();
-
-		// Second best
-		int iSecondClosestID = MARF.getResultSet().getSecondClosestID();
+		
+		if ( numResults > 1 ) {
+			
+			// Second best
+			iSecondClosestID = MARF.getResultSet().getSecondClosestID();
+		}
 		
 		try{
 			
-//			create writer and file to communicate filename, first ID, and second best ID to PMA
+			// create writer and file to communicate filename, first ID, and second best ID to PMA
 			BufferedWriter writing, nS;
 			File toDATABASE = new File(sent);
 	        File nameSave = new File(nSave);
