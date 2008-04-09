@@ -38,20 +38,7 @@ extends Database
 {
 	static String dbFolder = "speaker/databases";
 
-	static int[] fCount;
-
-
-
-	/**
-	 * Hashes "config string" -&gt; Vector(FirstMatchPoint(XSuccesses, YFailures),
-	 * SecondMatchPoint(XSuccesses, YFailures)).
-	 */
-	private Hashtable oStatsPerConfig = null;
-
-	/**
-	 * Array of sorted stats refs.
-	 */
-	private Vector[] aoSortedStatsRefs = null;
+	private Hashtable fCount = null;
 
 	/**
 	 * A vector of vectors of speakers info pre-loded on <code>connect()</code>.
@@ -64,21 +51,11 @@ extends Database
 	 */
 	private BufferedReader oConnection = null;
 
-	/**
-	 * For serialization versioning.
-	 * @since 0.3.0.5
-	 */
-	private static final long serialVersionUID = -7185805363856188810L;
-
-	/**
-	 * Constructor.
-	 * @param pstrFileName filename of a CSV file with IDs and names of speakers
-	 */
 	public SpeakersIdentDb(final String pstrFileName)
 	{
 		this.strFilename = pstrFileName;
 		this.oDB = new Hashtable();
-		this.oStatsPerConfig = new Hashtable();
+		this.fCount = new Hashtable();
 
 	}
 
@@ -89,7 +66,7 @@ extends Database
 	 * @return int ID
 	 * @throws StorageException in case of an error in any I/O operation
 	 */
-	public final int getIDByFilename(final String pstrFileName, final boolean pbTraining)
+	public final int getIDByFilename(final String pstrFileName)
 	throws StorageException
 	{
 		String strFilenameToLookup;
@@ -122,14 +99,7 @@ extends Database
 			Vector oSpeakerInfo = (Vector)this.oDB.get(oID);
 			Vector oFilenames;
 
-			if(pbTraining == true)
-			{
-				oFilenames = (Vector)oSpeakerInfo.elementAt(1);
-			}
-			else
-			{
-				oFilenames = (Vector)oSpeakerInfo.elementAt(2);
-			}
+			oFilenames = (Vector)oSpeakerInfo.elementAt(0);
 
 			// Start from 1 because 0 is speaker's name
 			for(int i = 0; i < oFilenames.size(); i++)
@@ -140,7 +110,7 @@ extends Database
 				{
 					int ID = oID.intValue();
 
-					fCount[ID]++;
+//					fCount[ID]++;
 
 					return ID;
 				}
@@ -157,44 +127,10 @@ extends Database
 	 * @return int ID
 	 * @throws StorageException in case of an error in any I/O operation
 	 */
-	public final int[] getNumberPerID()
+	public final Hashtable getNumberPerID()
 	throws StorageException
 	{
 		return fCount;
-	}
-
-	private final void initialCount(){
-		int lastSaved=getLast(dbFolder,".txt");
-		fCount=new int[lastSaved+1];
-		for(int i=0;i<fCount.length;i++)
-			fCount[i]=0;
-	}
-
-
-	/**
-	 * Retrieves speaker's name by their ID.
-	 * @param piID ID of a person in the DB to return a name for
-	 * @return name string
-	 * @throws StorageException
-	 */
-	public final String getName(final int piID)
-	throws StorageException
-	{
-		//Debug.debug("getName() - ID = " + piID + ", db size: " + oDB.size());
-		String strName;
-
-		Vector oDBEntry = (Vector)this.oDB.get(new Integer(piID));
-
-		if(oDBEntry == null)
-		{
-			strName = "Unknown Speaker (" + piID + ")";
-		}
-		else
-		{
-			strName = (String)oDBEntry.elementAt(0);
-		}
-
-		return strName;
 	}
 
 	/**
@@ -251,13 +187,6 @@ extends Database
 					iID = Integer.parseInt(oTokenizer.nextToken());
 				}
 
-				// speaker's name
-				if(oTokenizer.hasMoreTokens())
-				{
-					strLine = oTokenizer.nextToken();
-					oSpeakerInfo.add(strLine);
-				}
-
 				// training file names
 				Vector oTrainingFilenames = new Vector();
 
@@ -273,22 +202,7 @@ extends Database
 				}
 
 				oSpeakerInfo.add(oTrainingFilenames);
-
-				// testing file names
-				Vector oTestingFilenames = new Vector();
-
-				if(oTokenizer.hasMoreTokens())
-				{
-					StringTokenizer oSTK = new StringTokenizer(oTokenizer.nextToken(), "|");
-
-					while(oSTK.hasMoreTokens())
-					{
-						strLine = oSTK.nextToken();
-						oTestingFilenames.add(strLine);
-					}
-				}
-
-				oSpeakerInfo.add(oTestingFilenames);
+				fCount.put(iID, oTrainingFilenames.size());
 
 				Debug.debug("Putting ID=" + iID + " along with info vector of size " + oSpeakerInfo.size());
 
@@ -305,7 +219,7 @@ extends Database
 					"\": " + e.getMessage() + "."
 			);
 		}
-		initialCount();
+
 	}
 
 	/**
@@ -332,261 +246,6 @@ extends Database
 		}
 	}
 
-	/**
-	 * Adds one more classification statics entry.
-	 * @param pstrConfig String representation of the configuration the stats are for
-	 * @param pbSuccess <code>true</code> if classification was successful; <code>false</code> otherwise
-	 */
-	public final void addStats(final String pstrConfig, final boolean pbSuccess)
-	{
-		addStats(pstrConfig, pbSuccess, false);
-	}
-
-	/**
-	 * Adds one more classification statics entry and accounts for the second best choice.
-	 * @param pstrConfig String representation of the configuration the stats are for
-	 * @param pbSuccess <code>true</code> if classification was successful; <code>false</code> otherwise
-	 * @param pbSecondBest <code>true</code> if classification was successful; <code>false</code> otherwise
-	 */
-	public final void addStats(final String pstrConfig, final boolean pbSuccess, final boolean pbSecondBest)
-	{
-		Vector oMatches = (Vector)this.oStatsPerConfig.get(pstrConfig);
-		Point oPoint = null;
-
-		if(oMatches == null)
-		{
-			oMatches = new Vector(2);
-			oMatches.add(new Point());
-			oMatches.add(new Point());
-			oMatches.add(pstrConfig);
-		}
-		else
-		{
-			if(pbSecondBest == false)
-			{
-				// First match
-				oPoint = (Point)oMatches.elementAt(0);
-			}
-			else
-			{
-				// Second best match
-				oPoint = (Point)oMatches.elementAt(1);
-			}
-		}
-
-		int iSuccesses = 0; // # of successes
-		int iFailures = 0; // # of failures
-
-		if(oPoint == null) // Didn't exist yet; create new
-		{
-			if(pbSuccess == true)
-			{
-				iSuccesses = 1;
-			}
-			else
-			{
-				iFailures = 1;
-			}
-
-			oPoint = new Point(iSuccesses, iFailures);
-
-			if(oPoint == null)
-			{
-				System.err.println("SpeakersIdentDb.addStats() - oPoint null! Out of memory?");
-				System.exit(-1);
-			}
-
-			if(oMatches == null)
-			{
-				System.err.println("SpeakersIdentDb.addStats() - oMatches null! Out of memory?");
-				System.exit(-1);
-			}
-
-			if(oMatches.size() == 0)
-			{
-				System.err.println("SpeakersIdentDb.addStats() - oMatches.size = 0");
-				System.exit(-1);
-			}
-
-			if(pbSecondBest == false)
-			{
-				oMatches.setElementAt(oPoint, 0);
-			}
-			else
-			{
-				oMatches.setElementAt(oPoint, 1);
-			}
-
-			this.oStatsPerConfig.put(pstrConfig, oMatches);
-		}
-
-		else // There is an entry for this config; update
-		{
-			if(pbSuccess == true)
-			{
-				oPoint.x++;
-			}
-			else
-			{
-				oPoint.y++;
-			}
-		}
-	}
-
-	/**
-	 * Dumps all collected statistics to STDOUT.
-	 * @throws Exception
-	 */
-	public final void printStats()
-	throws Exception
-	{
-		printStats(false);
-	}
-
-
-	/**
-	 * Dumps collected statistics to STDOUT.
-	 * @param pbBestOnly <code>true</code> - print out only the best score number; <code>false</code> - all stats
-	 * @throws Exception
-	 */
-	public final void printStats(boolean pbBestOnly)
-	throws Exception
-	{
-		if(this.oStatsPerConfig.size() == 0)
-		{
-			System.err.println("SpeakerIdentDb: no statistics available. Did you run the recognizer yet?");
-			return;
-		}
-
-		// First row is for the identified results, 2nd is for 2nd best ones.
-		String[][] astrResults = new String[2][this.oStatsPerConfig.size()];
-
-		this.aoSortedStatsRefs = (Vector[])oStatsPerConfig.values().toArray(new Vector[0]);
-		Arrays.sort(this.aoSortedStatsRefs, new StatsPercentComparator(StatsPercentComparator.DESCENDING));
-
-		int iResultNum = 0;
-
-		System.out.println("guess,run,config,good,bad,%");
-
-		for(int i = 0; i < this.aoSortedStatsRefs.length; i++)
-		{
-			String strConfig = (String)(this.aoSortedStatsRefs[i]).elementAt(2);
-
-			for(int j = 0; j < 2; j++)
-			{
-				Point oGoodBadPoint = (Point)(this.aoSortedStatsRefs[i]).elementAt(j);
-				String strGuess = (j == 0) ? "1st" : "2nd";
-				String strRun = (iResultNum + 1) + "";
-				DecimalFormat oFormat = new DecimalFormat("#,##0.00;(#,##0.00)");
-				double dRate = ((double)oGoodBadPoint.x / (double)(oGoodBadPoint.x + oGoodBadPoint.y)) * 100;
-
-				if(pbBestOnly == true)
-				{
-					System.out.print(oFormat.format(dRate));
-					return;
-				}
-
-				astrResults[j][iResultNum] =
-					strGuess + "," +
-					strRun + "," +
-					strConfig + "," +
-					oGoodBadPoint.x + "," + // Good
-					oGoodBadPoint.y + "," + // Bad
-					oFormat.format(dRate);
-			}
-
-			iResultNum++;
-		}
-
-		// Print all of the 1st match
-		for(int i = 0; i < astrResults[0].length; i++)
-		{
-			System.out.println(astrResults[0][i]);
-		}
-
-		// Print all of the 2nd match
-		for(int i = 0; i < astrResults[1].length; i++)
-		{
-			System.out.println(astrResults[1][i]);
-		}
-	}
-
-	/**
-	 * Resets in-memory and on-disk statistics.
-	 * @throws StorageException
-	 */
-	public final void resetStats()
-	throws StorageException
-	{
-		this.oStatsPerConfig.clear();
-		dump();
-	}
-
-	/**
-	 * Dumps statistic's Hashtable object as gzipped binary to disk.
-	 * @throws StorageException
-	 */
-	public void dump()
-	throws StorageException
-	{
-		try
-		{
-			FileOutputStream oFOS = new FileOutputStream(this.strFilename + ".stats");
-			GZIPOutputStream oGZOS = new GZIPOutputStream(oFOS);
-			ObjectOutputStream oOOS = new ObjectOutputStream(oGZOS);
-
-			oOOS.writeObject(this.oStatsPerConfig);
-			oOOS.flush();
-			oOOS.close();
-		}
-		catch(Exception e)
-		{
-			throw new StorageException(e);
-		}
-	}
-
-	/**
-	 * Reloads statistic's Hashtable object from disk.
-	 * If the file did not exist, it creates a new one.
-	 * @throws StorageException
-	 */
-	public void restore()
-	throws StorageException
-	{
-		try
-		{
-			FileInputStream oFIS = new FileInputStream(this.strFilename + ".stats");
-			GZIPInputStream oGZIS = new GZIPInputStream(oFIS);
-			ObjectInputStream oOIS = new ObjectInputStream(oGZIS);
-
-			this.oStatsPerConfig = (Hashtable)oOIS.readObject();
-			oOIS.close();
-		}
-		catch(FileNotFoundException e)
-		{
-			System.out.println
-			(
-					"NOTICE: File " + this.strFilename +
-					".stats does not seem to exist. Creating a new one...."
-			);
-
-			resetStats();
-		}
-		catch(ClassNotFoundException e)
-		{
-			throw new StorageException
-			(
-					"SpeakerIdentDb.retore() - ClassNotFoundException: " +
-					e.getMessage()
-			);
-		}
-		catch(Exception e)
-		{
-			throw new StorageException(e);
-		}
-	}
-
-
 	private static int getLast(String folder, String fS){
 		int ID = -1;
 		String temp1,temp2;
@@ -610,73 +269,6 @@ extends Database
 
 		return ID;
 
-	}
-}
-/**
- * <p>Used in sorting by percentage of the stats entries
- * in either ascending or descending order.</p>
- *
- * <p>TODO: To be moved to Stats.</p>
- *
- * @author Serguei Mokhov
- * @version $Revision: 1.24 $
- * @since 0.0.1 of MARF
- */
-class StatsPercentComparator
-extends marf.util.SortComparator
-{
-	/**
-	 * For serialization versioning.
-	 * @since 0.3.0.5
-	 */
-	private static final long serialVersionUID = -7185805363856188810L;
-
-	/**
-	 * Mimics parent's constructor.
-	 */
-	public StatsPercentComparator()
-	{
-		super();
-	}
-
-	/**
-	 * Mimics parent's constructor.
-	 * @param piSortMode either DESCENDING or ASCENDING sort mode
-	 */
-	public StatsPercentComparator(final int piSortMode)
-	{
-		super(piSortMode);
-	}
-
-	/**
-	 * Implementation of the Comparator interface for the stats objects.
-	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-	 */
-	public int compare(Object poStats1, Object poStats2)
-	{
-		Vector oStats1 = (Vector)poStats1;
-		Vector oStats2 = (Vector)poStats2;
-
-		Point oGoodBadPoint1 = (Point)(oStats1.elementAt(0));
-		Point oGoodBadPoint2 = (Point)(oStats2.elementAt(0));
-
-		double dRate1 = ((double)oGoodBadPoint1.x / (double)(oGoodBadPoint1.x + oGoodBadPoint1.y)) * 100;
-		double dRate2 = ((double)oGoodBadPoint2.x / (double)(oGoodBadPoint2.x + oGoodBadPoint2.y)) * 100;
-
-		switch(this.iSortMode)
-		{
-		case DESCENDING:
-		{
-			return (int)((dRate2 - dRate1) * 100);
-		}
-
-
-		case ASCENDING:
-		default:
-		{
-			return (int)((dRate1 - dRate2) * 100);
-		}
-		}
 	}
 }
 
