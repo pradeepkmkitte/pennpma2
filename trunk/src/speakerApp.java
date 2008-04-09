@@ -1,5 +1,5 @@
 import java.io.*;
-import java.util.Scanner;
+import java.util.Hashtable;
 
 import marf.MARF;
 import marf.util.MARFException;
@@ -240,15 +240,8 @@ System.out.println("\n"+name+" saved.");
 			soDB.connect();
 			soDB.query();
 
-			int[] counts = entrySize();
-			int[] nChanged = new int[counts.length];
-			for(int i=0;i<counts.length;i++)
-				nChanged[i]=0;
-
 			String strFileName = "";
 			String pstrFileName = "";
-
-			int ID;
 
 			//TRAINING ON ENTIRE DIRECTORY, ONE FILE AT A TIME
 			for(int i = 0; i < aoFiles.length; i++)
@@ -373,8 +366,8 @@ System.out.println("\n"+name+" saved.");
 	}
 
 
-	private static int[] entrySize(){
-		int[] counts = {};
+	private static Hashtable entrySize(){
+		Hashtable counts = new Hashtable();
 		try{
 
 			String strFileName;
@@ -406,9 +399,9 @@ System.out.println("\n"+name+" saved.");
 	}
 
 	private static int entrySize(int input){
-		int[] output = entrySize();
-		if(output.length>0)
-			return output[input];
+		Hashtable output = entrySize();
+		if(output.size()>0)
+			return (Integer)output.get(input);
 		else
 			return 0;
 
