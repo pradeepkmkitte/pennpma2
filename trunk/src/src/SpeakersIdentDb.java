@@ -38,7 +38,7 @@ extends Database
 {
 	static String dbFolder = "speaker/databases";
 
-	static int[] fCount;
+	private Hashtable fCount = null;
 
 	/**
 	 * A vector of vectors of speakers info pre-loded on <code>connect()</code>.
@@ -55,6 +55,7 @@ extends Database
 	{
 		this.strFilename = pstrFileName;
 		this.oDB = new Hashtable();
+		this.fCount = new Hashtable();
 
 	}
 
@@ -65,7 +66,7 @@ extends Database
 	 * @return int ID
 	 * @throws StorageException in case of an error in any I/O operation
 	 */
-	public final int getIDByFilename(final String pstrFileName, final boolean pbTraining)
+	public final int getIDByFilename(final String pstrFileName)
 	throws StorageException
 	{
 		String strFilenameToLookup;
@@ -98,14 +99,7 @@ extends Database
 			Vector oSpeakerInfo = (Vector)this.oDB.get(oID);
 			Vector oFilenames;
 
-			if(pbTraining == true)
-			{
-				oFilenames = (Vector)oSpeakerInfo.elementAt(1);
-			}
-			else
-			{
-				oFilenames = (Vector)oSpeakerInfo.elementAt(2);
-			}
+			oFilenames = (Vector)oSpeakerInfo.elementAt(0);
 
 			// Start from 1 because 0 is speaker's name
 			for(int i = 0; i < oFilenames.size(); i++)
@@ -116,7 +110,7 @@ extends Database
 				{
 					int ID = oID.intValue();
 
-					fCount[ID]++;
+//					fCount[ID]++;
 
 					return ID;
 				}
@@ -133,7 +127,7 @@ extends Database
 	 * @return int ID
 	 * @throws StorageException in case of an error in any I/O operation
 	 */
-	public final int[] getNumberPerID()
+	public final Hashtable getNumberPerID()
 	throws StorageException
 	{
 		return fCount;
@@ -193,13 +187,6 @@ extends Database
 					iID = Integer.parseInt(oTokenizer.nextToken());
 				}
 
-				// speaker's name
-				if(oTokenizer.hasMoreTokens())
-				{
-					strLine = oTokenizer.nextToken();
-					oSpeakerInfo.add(strLine);
-				}
-
 				// training file names
 				Vector oTrainingFilenames = new Vector();
 
@@ -215,22 +202,7 @@ extends Database
 				}
 
 				oSpeakerInfo.add(oTrainingFilenames);
-
-				// testing file names
-				Vector oTestingFilenames = new Vector();
-
-				if(oTokenizer.hasMoreTokens())
-				{
-					StringTokenizer oSTK = new StringTokenizer(oTokenizer.nextToken(), "|");
-
-					while(oSTK.hasMoreTokens())
-					{
-						strLine = oSTK.nextToken();
-						oTestingFilenames.add(strLine);
-					}
-				}
-
-				oSpeakerInfo.add(oTestingFilenames);
+				fCount.put(iID, oTrainingFilenames.size());
 
 				Debug.debug("Putting ID=" + iID + " along with info vector of size " + oSpeakerInfo.size());
 
@@ -247,7 +219,7 @@ extends Database
 					"\": " + e.getMessage() + "."
 			);
 		}
-		initialCount();
+
 	}
 
 	/**
@@ -274,14 +246,6 @@ extends Database
 		}
 	}
 
-	private final void initialCount(){
-		int lastSaved=getLast(dbFolder,".txt");
-		fCount=new int[lastSaved+1];
-		for(int i=0;i<fCount.length;i++)
-			fCount[i]=0;
-	}
-
-	
 	private static int getLast(String folder, String fS){
 		int ID = -1;
 		String temp1,temp2;
