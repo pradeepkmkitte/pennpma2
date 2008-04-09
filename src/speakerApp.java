@@ -153,38 +153,47 @@ public class speakerApp
 
 
 				File old = new File(temp);
-//				System.out.println(old.getPath());
-File change = new File(samplesFolder+"/"+identity+"_"+number+".wav");
-//System.out.println(change.getPath());
 
-if(old.renameTo(change)){
-	for(float f=0;f<1e6;f++){};
-	name = change.getName();
-}
-else
-	name = old.getName();
-
-if(name.equalsIgnoreCase("temp.wav")){
-	System.out.println("Didn't change file name. No saving done.");
-	System.exit(0);
-}
-
-entryTrain(id,name);
-
-newDB();
-soDB = new SpeakersIdentDb(database);
-soDB.connect();
-soDB.query();
-
-train(samplesFolder+"/"+name);
+				File change = new File(samplesFolder+"/"+identity+"_"+number+".wav");
+				
+				if(change.exists()){
+					for(int i=1;i<number;i++){
+						change = new File(samplesFolder+"/"+identity+"_"+i+".wav");
+						if(change.exists())
+							break;
+					}
+				}
 
 
-File guess = new File(sent);
-guess.delete();
+				if(old.renameTo(change)){
+					for(float f=0;f<1e6;f++){};
+					name = change.getName();
+				}
+				else
+					name = old.getName();
+				
+				if(name.equalsIgnoreCase("temp.wav")){
+					System.out.println("Didn't change file name. No saving done.");
+					System.exit(0);
+				}
+				
+				System.out.println("\n"+name+" saved.");
 
-System.out.println("\n"+name+" saved.");
+				entryTrain(id,name);
+
+				newDB();
+				soDB = new SpeakersIdentDb(database);
+				soDB.connect();
+				soDB.query();
+				
+				train(samplesFolder+"/"+name);
+				
+				
+				File guess = new File(sent);
+				guess.delete();
+				
 			}
-			//              MARF specific errors thrown by ident, train, setConfig, connect, query
+//              MARF specific errors thrown by ident, train, setConfig, connect, query
 			catch(MARFException e)
 			{
 				System.err.println(e.getMessage());
@@ -317,7 +326,39 @@ System.out.println("\n"+name+" saved.");
 			if(!clear.delete())
 				System.out.println(sent+" not deleted.");
 		}
+		try{
+			db = new File(database);
+			db.createNewFile();
+			newDB();                        
+	
+			soDB = new SpeakersIdentDb(database);
+	
+			//open text file and populate data structure
+			soDB.connect();
+			soDB.query();
+		}
+		catch(MARFException e)
+		{
+			System.err.println(e.getMessage());
+			e.printStackTrace(System.err);
+		}
 
+//		IO error thrown by createNewFile
+		catch(IOException e){
+			System.err.println("Error creating file");
+		}
+		finally
+		{
+			try
+			{
+				soDB.close();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace(System.err);
+				System.exit(-1);
+			}
+		}
 	}
 
 
@@ -341,7 +382,7 @@ System.out.println("\n"+name+" saved.");
 			int idCheck;
 			for(int i=0;i<aoFiles.length;i++){
 				MARF.setSampleFile(aoFiles[i].getName());
-				idCheck = soDB.getIDByFilename(aoFiles[i].getName(), true);
+				idCheck = soDB.getIDByFilename(aoFiles[i].getName());
 				String path=aoFiles[i].getPath();
 				if(Integer.parseInt(id)==idCheck){
 					if(path.toLowerCase().endsWith(".wav")){
@@ -384,7 +425,7 @@ System.out.println("\n"+name+" saved.");
 				strFileName = aoFiles[i].getPath();
 				if(aoFiles[i].isFile() && strFileName.toLowerCase().endsWith(".wav"))
 				{
-					soDB.getIDByFilename(strFileName, true);
+					soDB.getIDByFilename(strFileName);
 				}
 			}
 
@@ -437,7 +478,7 @@ System.out.println("\n"+name+" saved.");
 				System.out.println("create new entry...");
 				eT.createNewFile();
 				writing = new BufferedWriter(new FileWriter(eT));
-				writing.write(identity+", ,"+filename);
+				writing.write(identity+","+filename);
 				writing.close();
 			}
 		}
@@ -559,7 +600,7 @@ System.out.println("\n"+name+" saved.");
 		File sample = new File(pstrFilename);
 
 //		uses speakerIdentDB to associate the training file to speaker
-		int iID = soDB.getIDByFilename(pstrFilename, true);
+		int iID = soDB.getIDByFilename(pstrFilename);
 
 		if(iID == -1)
 		{
@@ -586,51 +627,6 @@ System.out.println("\n"+name+" saved.");
 		MARF.setDumpSpectrogram(false);
 		MARF.setSampleFormat(MARF.WAV);
 	}
-
-	///**
-	//* Updates training set with a new sample from a given file.
-	//*
-	//*/
-//	public static final boolean train(String pstrFilename, int[] index)throws MARFException
-//	{
-//	MARF.setSampleFile(pstrFilename);
-//	File sample = new File(pstrFilename);
-
-////	uses speakerIdentDB to associate the training file to speaker
-//	int iID = soDB.getIDByFilename(pstrFilename, true);
-	//
-//	if(iID == -1)
-//	{
-//	System.out.println("No speaker found for \"" + pstrFilename + "\" for training.\nEnter new ID:");
-////	sample.delete();
-//	String nID = sc.nextLine();
-//	System.out.println("ID "+nID+" sample number: ");
-//	String num = sc.nextLine();
-
-//	if(num.equals("1")){
-//	File temp = new File(dbFolder+"/"+nID+".txt");
-//	temp.delete();
-//	}
-//	entryTrain(nID, pstrFilename);
-
-
-//	}
-//	else
-//	{
-//	System.out.println(pstrFilename + "\tID:"+iID);
-//	String nFilename =samplesFolder+"/"+change(pstrFilename,iID,index[iID]+1);
-//	boolean unchanged = nFilename.equalsIgnoreCase(pstrFilename);
-//	if(!unchanged)
-//	System.out.println(nFilename+" created.");
-////	MARF.setSampleFile(nFilename);
-////	MARF.setCurrentSubject(iID);
-////	MARF.train();
-//	return unchanged;
-//	}
-
-//	return true;
-//	}       
-
 
 }
 
