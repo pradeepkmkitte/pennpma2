@@ -441,7 +441,7 @@ public class speakerApp
 
 	private static int entrySize(int input){
 		Hashtable output = entrySize();
-		if(output.size()>0)
+		if(output.containsKey(input))
 			return (Integer)output.get(input);
 		else
 			return 0;

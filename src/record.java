@@ -7,7 +7,7 @@ public class record{
 	static AudioFormat format = new AudioFormat(8000.0F, 16, 1, true, true);
 	static TargetDataLine line;
 	static Scanner sc = new Scanner(System.in);
-
+ 
 
 	String fileName;
 	String samplesFolder="speaker/training-samples";
