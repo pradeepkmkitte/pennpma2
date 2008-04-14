@@ -38,7 +38,7 @@ public class speakerApp
 		}
 
 		if(argv[0].compareToIgnoreCase("identify")==0){
-			System.out.print("\nbegin...");
+//			System.out.print("\nbegin...");
 			begin();
 		}
 		else if(argv[0].compareToIgnoreCase("save")==0){
@@ -81,7 +81,7 @@ public class speakerApp
 			File tempsample = new File(temp);    
 			if(tempsample.exists()){
 				if((new File(temp)).delete()){
-					System.out.print("(Old temp sample cleared.)");
+//					System.out.print("(Old temp sample cleared.)");
 				}
 
 			}
@@ -393,7 +393,7 @@ public class speakerApp
 				}
 			}
 
-			File delEntry = new File(database+"/"+id+".txt");
+			File delEntry = new File(dbFolder+"/"+id+".txt");
 			if(!delEntry.exists())
 				System.out.println("can't find text file!");
 			else
@@ -475,7 +475,7 @@ public class speakerApp
 			}
 //			otherwise, the entry is new, the id # and the filename has to be created in the new entry
 			else{
-				System.out.println("create new entry...");
+//				System.out.println("create new entry...");
 				eT.createNewFile();
 				writing = new BufferedWriter(new FileWriter(eT));
 				writing.write(identity+","+filename);
@@ -555,8 +555,8 @@ public class speakerApp
 		int iIdentifiedID = 0, iSecondClosestID = 0;
 		int numResults = MARF.getResultSet().size();
 
-		if ( numResults == 0 )
-			System.out.println("No results");
+		if ( numResults == 0 );
+//			System.out.println("No results");
 
 		else {
 
