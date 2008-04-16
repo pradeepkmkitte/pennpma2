@@ -581,6 +581,7 @@ public class speakerApp
 
 			int[] ids = new int[results.length];
 			double[] outcomes = new double[results.length]; 
+			double first = results[0].getOutcome();
 			
 			// create writer and file to communicate filename, first ID, and second best ID to PMA
 			BufferedWriter writing, nS;
@@ -591,7 +592,7 @@ public class speakerApp
 			for(int i=0;i<results.length;i++){
 				ids[i] = results[i].getID();
 				outcomes[i] = results[i].getOutcome();
-				writing.write(ids[i]+"\t"+outcomes[i]);
+				writing.write(ids[i]+"\t"+first/outcomes[i]);
 				writing.newLine();
 			}			
 			writing.close();
