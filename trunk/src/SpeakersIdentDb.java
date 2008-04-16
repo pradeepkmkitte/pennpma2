@@ -36,7 +36,7 @@ import marf.util.Debug;
 public class SpeakersIdentDb
 extends Database
 {
-	static String dbFolder = "speaker/databases";
+	private static String dbFolder = "speaker/databases";
 
 	private Hashtable fCount = null;
 
