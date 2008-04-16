@@ -1,36 +1,40 @@
 import java.io.*;
-import java.util.Hashtable;
+import java.util.*;
 
 import marf.MARF;
 import marf.util.MARFException;
+import marf.Storage.*;
 
 public class speakerApp
 {
-
+	//Database of IDs and their wave files
 	protected static SpeakersIdentDb soDB;
 
 	//Current file name
-	static String name="";
+	private static String name="";
 
 	//List of all samples in the folder
-	static File[] aoFiles;
+	private static File[] aoFiles;
 
 	//Database text file
-	static File db;
+	private static File db;
 
-	static record sample;
+	//Will be initialized to record
+	private static record sample;
 
-	static String database = "speaker/newDB.txt";
-	static String samplesFolder = "speaker/training-samples";
-	static String dbFolder = "speaker/databases";
-	static String cName = "marf.Storage.TrainingSet.100.301.512.gzbin";
-	static String sent = "speaker/speakerids.txt";
-	static String temp = samplesFolder+"/temp.wav";
+	//folders and files
+	private static String database = "speaker/newDB.txt";
+	private static String samplesFolder = "speaker/training-samples";
+	private static String dbFolder = "speaker/databases";
+	private static String cName = "marf.Storage.TrainingSet.100.301.512.gzbin";
+	private static String sent = "speaker/speakerids.txt";
+	private static String temp = samplesFolder+"/temp.wav";
 
 
 	public static void main(String[ ] argv){
 
 		try{
+			//MARF needs settings before anything else can be done
 			setConfig();
 		}
 		catch(MARFException e){
@@ -38,7 +42,6 @@ public class speakerApp
 		}
 
 		if(argv[0].compareToIgnoreCase("identify")==0){
-//			System.out.print("\nbegin...");
 			begin();
 		}
 		else if(argv[0].compareToIgnoreCase("save")==0){
@@ -67,14 +70,11 @@ public class speakerApp
 	 * 
 	 * Starts record process and IDs sample. Returns top 2 IDs to the text file 'sent'.
 	 * Saves sample as 'temp.wav'. User must press 'Enter' in console to end this function.
+	 * If a temp sample already exists, it is overwritten.
 	 * 
 	 */       
 
 	public static void begin(){
-
-		//Database text file
-		db = new File(database);
-
 
 		try
 		{      
@@ -86,6 +86,7 @@ public class speakerApp
 
 			}
 
+			newDB();
 			soDB = new SpeakersIdentDb(database);
 
 			// open text file and populate data structure
@@ -142,7 +143,12 @@ public class speakerApp
 
 //	}
 
-
+	/**
+	 * 
+	 * Renames the temp.wav and trains it into the system given the correct ID 
+	 * After the training, the 'sent' file created by begin() is deleted
+	 * 
+	 */       
 	public static void IDFound(String id){
 		File tempsample = new File(temp);
 		if(tempsample.exists()){
@@ -219,7 +225,7 @@ public class speakerApp
 
 	/**
 	 * 
-	 * Trains all WAVE files. Initializes system.
+	 * Trains all WAVE files.
 	 * 
 	 */       
 
@@ -326,39 +332,6 @@ public class speakerApp
 			if(!clear.delete())
 				System.out.println(sent+" not deleted.");
 		}
-		try{
-			db = new File(database);
-			db.createNewFile();
-			newDB();                        
-	
-			soDB = new SpeakersIdentDb(database);
-	
-			//open text file and populate data structure
-			soDB.connect();
-			soDB.query();
-		}
-		catch(MARFException e)
-		{
-			System.err.println(e.getMessage());
-			e.printStackTrace(System.err);
-		}
-
-//		IO error thrown by createNewFile
-		catch(IOException e){
-			System.err.println("Error creating file");
-		}
-		finally
-		{
-			try
-			{
-				soDB.close();
-			}
-			catch(Exception e)
-			{
-				e.printStackTrace(System.err);
-				System.exit(-1);
-			}
-		}
 	}
 
 
@@ -407,7 +380,7 @@ public class speakerApp
 	}
 
 
-	private static Hashtable entrySize(){
+	private static int entrySize(int input){
 		Hashtable counts = new Hashtable();
 		try{
 
@@ -435,24 +408,19 @@ public class speakerApp
 		}catch(MARFException e){
 			System.err.println("change DB error");
 		}finally{
-			return counts;
+			if(counts.containsKey(input))
+				return (Integer)counts.get(input);
+			else
+				return 0;
 		}
 	}
 
-	private static int entrySize(int input){
-		Hashtable output = entrySize();
-		if(output.containsKey(input))
-			return (Integer)output.get(input);
-		else
-			return 0;
-
-	}
-
-
+	
+	
 	/**
 	 * Creates or edits the text file for a specific speaker. This text file
 	 * holds a list of the training samples for the speaker. If the speaker is new,
-	 * a new file is created. Otherwise, this file is added to the list.
+	 * a new text file is created. Otherwise, this wave file is added to the list.
 	 *
 	 * @param identity (of the speaker)
 	 * @param filename (of the sample)
@@ -544,11 +512,13 @@ public class speakerApp
 	 * Indetifies a speaker using MARF given a filename. Returns filename, first guess
 	 * and second best guess in a text file.
 	 */
-	private static final void ident(String name) throws MARFException
+	private static final void oldIdent(String name) throws MARFException
 	{
 		String pstrFilename = samplesFolder+"/"+name;
 		File tFile = new File(pstrFilename);
 
+		System.out.println(name+" "+tFile.exists());
+		
 		MARF.setSampleFile(pstrFilename);
 		MARF.recognize();
 
@@ -590,6 +560,51 @@ public class speakerApp
 		}
 	}
 
+/*
+ * Right now works on temp.wav... need to change that.
+ * 
+ */
+	
+	private static final void ident(String name)
+	{
+		try{
+
+			String pstrFilename = samplesFolder+"/"+name;
+			File tFile = new File(pstrFilename);
+	
+			MARF.setSampleFile(pstrFilename);
+			MARF.recognize();
+	
+			int iIdentifiedID = MARF.queryResultID();
+			
+			Result[] results =  MARF.getResultSet().getResultSetSorted();
+
+			int[] ids = new int[results.length];
+			double[] outcomes = new double[results.length]; 
+			
+			// create writer and file to communicate filename, first ID, and second best ID to PMA
+			BufferedWriter writing, nS;
+			File toDATABASE = new File(sent);
+			toDATABASE.createNewFile();
+			writing = new BufferedWriter(new FileWriter(toDATABASE));
+			
+			for(int i=0;i<results.length;i++){
+				ids[i] = results[i].getID();
+				outcomes[i] = results[i].getOutcome();
+				writing.write(ids[i]+"\t"+outcomes[i]);
+				writing.newLine();
+			}			
+			writing.close();
+		}
+		catch(IOException e){
+			System.out.println("ident can't write to file!");
+		}
+		catch(MARFException e){
+			System.out.println("MARF EXCEPTION");
+		}
+	}
+
+	
 	/**
 	 * Updates training set with a new sample from a given file.
 	 * 
@@ -605,7 +620,7 @@ public class speakerApp
 		if(iID == -1)
 		{
 			System.out.println("No speaker found for \"" + pstrFilename + "\" for training.");
-			sample.delete();
+//			sample.delete();
 		}
 		else
 		{
