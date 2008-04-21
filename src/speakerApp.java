@@ -51,7 +51,6 @@ public class speakerApp
 			delete(argv[1]);
 		}
 		else if(argv[0].compareToIgnoreCase("train")==0){
-			System.out.println("\ntraining voices...");
 			totTrain();
 		}
 		else if(argv[0].compareToIgnoreCase("reset")==0){
