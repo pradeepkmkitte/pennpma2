@@ -601,7 +601,8 @@ public class speakerApp
 			System.out.println("ident can't write to file!");
 		}
 		catch(MARFException e){
-			System.out.println("MARF EXCEPTION");
+			System.err.println(e.getMessage());
+			e.printStackTrace(System.err);
 		}
 	}
 
@@ -621,7 +622,7 @@ public class speakerApp
 		if(iID == -1)
 		{
 			System.out.println("No speaker found for \"" + pstrFilename + "\" for training.");
-//			sample.delete();
+			sample.delete();
 		}
 		else
 		{
