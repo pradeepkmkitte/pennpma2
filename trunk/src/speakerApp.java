@@ -146,7 +146,7 @@ public class speakerApp
 	 */       
 	public static void found(String id, String fName){
 		File tempsample = new File(fName);
-		System.out.println("\tSaving: "+tempsample.getPath());
+//		System.out.println("\tSaving: "+tempsample.getPath());
 		if(tempsample.exists()){
 			try{
 
@@ -607,7 +607,7 @@ public class speakerApp
 
 			String pstrFilename = samplesFolder+"/"+name;
 			File tFile = new File(pstrFilename);
-			System.out.println("\tIdenting: "+tFile.getPath());
+//			System.out.println("\tIdenting: "+tFile.getPath());
 			MARF.setSampleFile(pstrFilename);
 			MARF.recognize();
 	
