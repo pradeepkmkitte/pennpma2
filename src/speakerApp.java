@@ -438,6 +438,10 @@ public class speakerApp
 			
 			for(int i=0;i<boFiles.length;i++){
 				id = boFiles[i].getName();
+				
+				if (id.indexOf(".txt") < 0)
+					continue;
+				
 				id = id.substring(0, id.indexOf(".txt"));
 				System.out.println(id+"\t");
 				read = new BufferedReader(new FileReader(boFiles[i]));
@@ -597,7 +601,7 @@ public class speakerApp
 	 * Indetifies a speaker using MARF given a filename. Returns list of all IDs in order
 	 * in a text file.
 	 */
-	private static final int ident(String name)
+	private static final void ident(String name)
 	{
 		try{
 
@@ -628,7 +632,6 @@ public class speakerApp
 				writing.newLine();
 			}			
 			writing.close();
-			return 0;
 		}
 		catch(IOException e){
 			System.out.println("ident can't write to file!");
@@ -636,10 +639,7 @@ public class speakerApp
 		catch(MARFException e){
 			System.err.println(e.getMessage());
 			e.printStackTrace(System.err);
-//			System.out.print(".,.");
-			return 1;
 		}
-		return 0;
 	}
 
 	
@@ -657,8 +657,8 @@ public class speakerApp
 
 		if(iID == -1)
 		{
-//			System.out.println("No speaker found for \"" + pstrFilename + "\" for training.");
-//			sample.delete();
+			System.out.println("No speaker found for \"" + pstrFilename + "\" for training.");
+			sample.delete();
 		}
 		else
 		{
