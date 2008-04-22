@@ -186,7 +186,7 @@ extends Database
 				{
 					iID = Integer.parseInt(oTokenizer.nextToken());
 				}
-
+ 
 				// training file names
 				Vector oTrainingFilenames = new Vector();
 
