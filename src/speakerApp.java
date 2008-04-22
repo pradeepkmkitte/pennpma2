@@ -52,17 +52,20 @@ public class speakerApp
 		else if(argv[0].compareToIgnoreCase("train")==0){
 			totTrain();
 		}
-		else if(argv[0].compareToIgnoreCase("test")==0){
-			totTrain();
-
-			for(int i=2;i<52;i++){
-				ident("test.wav");
-				File sen = new File(sent);
-				File save = new File("speaker/ids/"+entrySize(9972)+".txt");
-				System.out.println("Rename "+(i-1)+" "+sen.renameTo(save));
-				IDFound("9972",samplesFolder+"/9972_"+i+".wav");
-			}
+		else if(argv[0].compareToIgnoreCase("retest")==0){
+			retest();
 		}
+//		else if(argv[0].compareToIgnoreCase("test")==0){
+//			totTrain();
+//
+//			for(int i=2;i<52;i++){
+//				ident("test.wav");
+//				File sen = new File(sent);
+//				File save = new File("speaker/ids/"+entrySize(9972)+".txt");
+//				System.out.println("Rename "+(i-1)+" "+sen.renameTo(save));
+//				IDFound("9972",samplesFolder+"/9972_"+i+".wav");
+//			}
+//		}
 		else if(argv[0].compareToIgnoreCase("reset")==0){
 			reset();
 		}
@@ -141,6 +144,54 @@ public class speakerApp
 	 * After the training, the 'sent' file created by begin() is deleted
 	 * 
 	 */       
+	public static void found(String id, String fName){
+		File tempsample = new File(fName);
+		System.out.println("\tSaving: "+tempsample.getPath());
+		if(tempsample.exists()){
+			try{
+
+				int identity = Integer.parseInt(id);
+				File old = new File(fName);
+				name = old.getName();
+
+				entryTrain(id,name);
+
+				newDB();
+				soDB = new SpeakersIdentDb(database);
+				soDB.connect();
+				soDB.query();
+				
+				train(samplesFolder+"/"+name);
+				
+				
+				File guess = new File(sent);
+				guess.delete();
+				
+			}
+//              MARF specific errors thrown by ident, train, setConfig, connect, query
+			catch(MARFException e)
+			{
+				System.err.println(e.getMessage());
+				e.printStackTrace(System.err);
+			}       
+			//              close the db connection
+			finally
+			{
+				try
+				{
+					soDB.close();
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace(System.err);
+					System.exit(-1);
+				}
+			}
+		}
+		else
+			System.out.println("\nno WAVE file to save");
+	}
+
 	public static void IDFound(String id, String fName){
 		File tempsample = new File(fName);
 
@@ -216,6 +267,7 @@ public class speakerApp
 			System.out.println("\nno WAVE file to save");
 	}
 
+	
 	/**
 	 * 
 	 * Trains all WAVE files.
@@ -372,15 +424,44 @@ public class speakerApp
 		}
 	}
 	
-	private static void retrain(){
-		String folder = "speaker/resutls";
-		aoFiles = new File(dbFolder).listFiles();
-		BufferedReader read;
-		BufferedWriter write;
-		
-		for(int i=0;i<aoFiles.length;i++){
+	private static void retest(){
+		try{
 			
-		}	
+			StringTokenizer token;
+			String folder = "speaker/results";
+			File[] boFiles = new File(dbFolder).listFiles();
+			
+			File result, sen;
+			BufferedReader read;
+			Writer write;
+			String temp, id;
+			
+			for(int i=0;i<boFiles.length;i++){
+				id = boFiles[i].getName();
+				id = id.substring(0, id.indexOf(".txt"));
+				System.out.println(id+"\t");
+				read = new BufferedReader(new FileReader(boFiles[i]));
+				temp = read.readLine();
+				token = new StringTokenizer(temp,"|");
+				temp = token.nextToken();
+				write = new BufferedWriter(new FileWriter(boFiles[i]));
+				write.append(temp);		
+				write.close();
+				
+				totTrain();
+
+				for(int j=1;j<4;j++){
+					ident(id+"_"+(j+1)+".wav");
+					sen = new File(sent);
+					result = new File(folder+"/"+id+"_"+j+".txt");
+					System.out.println("\tRename results "+j+": "+sen.renameTo(result));
+					found(id,samplesFolder+"/"+id+"_"+(j+1)+".wav");					
+				}
+			}
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
 		
 	}
 	
@@ -516,13 +597,13 @@ public class speakerApp
 	 * Indetifies a speaker using MARF given a filename. Returns list of all IDs in order
 	 * in a text file.
 	 */
-	private static final void ident(String name)
+	private static final int ident(String name)
 	{
 		try{
 
 			String pstrFilename = samplesFolder+"/"+name;
 			File tFile = new File(pstrFilename);
-	
+			System.out.println("\tIdenting: "+tFile.getPath());
 			MARF.setSampleFile(pstrFilename);
 			MARF.recognize();
 	
@@ -547,6 +628,7 @@ public class speakerApp
 				writing.newLine();
 			}			
 			writing.close();
+			return 0;
 		}
 		catch(IOException e){
 			System.out.println("ident can't write to file!");
@@ -554,7 +636,10 @@ public class speakerApp
 		catch(MARFException e){
 			System.err.println(e.getMessage());
 			e.printStackTrace(System.err);
+//			System.out.print(".,.");
+			return 1;
 		}
+		return 0;
 	}
 
 	
@@ -572,7 +657,7 @@ public class speakerApp
 
 		if(iID == -1)
 		{
-			System.out.println("No speaker found for \"" + pstrFilename + "\" for training.");
+//			System.out.println("No speaker found for \"" + pstrFilename + "\" for training.");
 //			sample.delete();
 		}
 		else
