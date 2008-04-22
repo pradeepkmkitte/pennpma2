@@ -48,7 +48,7 @@ public class record{
 	 * This is an inner Thread class that saves the input into a designated file
 	 */
 
-	class SaveThread extends Thread{
+	class SaveThread extends Thread{ 
 		public void run(){
 
 //			set the file destination
