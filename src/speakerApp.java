@@ -227,7 +227,7 @@ public class speakerApp
 					System.exit(0);
 				}
 				
-				System.out.println("\n"+name+" saved.");
+//				System.out.println("\n"+name+" saved.");
 
 				entryTrain(id,name);
 
@@ -405,7 +405,7 @@ public class speakerApp
 				if(Integer.parseInt(id)==idCheck){
 					if(path.toLowerCase().endsWith(".wav")){
 						if(aoFiles[i].delete()){
-							System.out.println("ID matches: "+aoFiles[i].getName()+" <- deleted");
+//							System.out.println("ID matches: "+aoFiles[i].getName()+" <- deleted");
 						}
 					}
 				}
@@ -430,11 +430,12 @@ public class speakerApp
 			StringTokenizer token;
 			String folder = "speaker/results";
 			File[] boFiles = new File(dbFolder).listFiles();
-			
+//			78-84
 			File result, sen;
 			BufferedReader read;
 			Writer write;
 			String temp, id;
+			int j=1, k;
 			
 			for(int i=0;i<boFiles.length;i++){
 				id = boFiles[i].getName();
@@ -443,22 +444,30 @@ public class speakerApp
 					continue;
 				
 				id = id.substring(0, id.indexOf(".txt"));
+				if(Integer.parseInt(id)<78 || Integer.parseInt(id)>84)
+					continue;
 				System.out.println(id+"\t");
 				read = new BufferedReader(new FileReader(boFiles[i]));
 				temp = read.readLine();
 				token = new StringTokenizer(temp,"|");
 				temp = token.nextToken();
+				if(!(id.equals("78"))){
+					temp +="|"+token.nextToken()+"|"+token.nextToken();
+					j=3;
+				}
 				write = new BufferedWriter(new FileWriter(boFiles[i]));
 				write.append(temp);		
 				write.close();
 				
 				totTrain();
+				
+				k=j+3;
 
-				for(int j=1;j<4;j++){
+				for(;j<k;j++){
 					ident(id+"_"+(j+1)+".wav");
 					sen = new File(sent);
 					result = new File(folder+"/"+id+"_"+j+".txt");
-					System.out.println("\tRename results "+j+": "+sen.renameTo(result));
+//					System.out.println("\tRename results "+j+": "+sen.renameTo(result));
 					found(id,samplesFolder+"/"+id+"_"+(j+1)+".wav");					
 				}
 			}
@@ -659,8 +668,8 @@ public class speakerApp
 
 		if(iID == -1)
 		{
-			System.out.println("No speaker found for \"" + pstrFilename + "\" for training.");
-			sample.delete();
+//			System.out.println("No speaker found for \"" + pstrFilename + "\" for training.");
+//			sample.delete();
 		}
 		else
 		{
