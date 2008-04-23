@@ -22,17 +22,6 @@ import marf.Storage.StorageException;
 import marf.util.Arrays;
 import marf.util.Debug;
 
-
-/**
- * <p>Class SpeakersIdentDb manages database of speakers on the application level.</p>
- * <p>XXX: Move stats collection over to MARF.</p>
- *
- * <p>$Id: SpeakersIdentDb.java,v 1.24 2006/01/08 14:47:43 mokhov Exp $</p>
- *
- * @author Serguei Mokhov
- * @version $Revision: 1.24 $
- * @since 0.0.1
- */
 public class SpeakersIdentDb
 extends Database
 {
@@ -166,20 +155,19 @@ extends Database
 	public void query()
 	throws StorageException
 	{
-		// That's where we should load db results into internal data structure
-
 		String strLine;
 		int iID = -1;
 
 		try
 		{
 			strLine = this.oConnection.readLine();
-
+			Vector oSpeakerInfo, oTrainingFilenames;
+			StringTokenizer oTokenizer, oSTK;
 
 			while(strLine != null)
 			{
-				StringTokenizer oTokenizer = new StringTokenizer(strLine, ",");
-				Vector oSpeakerInfo = new Vector();
+				oTokenizer = new StringTokenizer(strLine, ",");
+				oSpeakerInfo = new Vector();
 
 				// get ID
 				if(oTokenizer.hasMoreTokens())
@@ -188,11 +176,11 @@ extends Database
 				}
  
 				// training file names
-				Vector oTrainingFilenames = new Vector();
+				oTrainingFilenames = new Vector();
 
 				if(oTokenizer.hasMoreTokens())
 				{
-					StringTokenizer oSTK = new StringTokenizer(oTokenizer.nextToken(), "|");
+					oSTK = new StringTokenizer(oTokenizer.nextToken(), "|");
 
 					while(oSTK.hasMoreTokens())
 					{
