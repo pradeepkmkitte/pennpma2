@@ -637,8 +637,10 @@ public class speakerApp
 			System.out.println("ident can't write to file!");
 		}
 		catch(MARFException e){
-			System.err.println(e.getMessage());
-			e.printStackTrace(System.err);
+//			System.err.println(e.getMessage());
+//			e.printStackTrace(System.err);
+			System.out.println("Sorry. I hiccupped. Please record again.");
+			System.exit(0);
 		}
 	}
 
