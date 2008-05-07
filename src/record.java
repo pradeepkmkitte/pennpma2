@@ -1,3 +1,11 @@
+/*
+ * Record.java
+ * 
+ * Scott Kyle, Erika Sanchez, and Meredith Skolnick
+ *
+ * Purpose: Starts and ends process to record the voice sample
+ */
+
 import java.io.*;
 import javax.sound.sampled.*;
 import java.util.*;

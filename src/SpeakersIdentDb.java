@@ -1,3 +1,11 @@
+/*
+ * SpeakersIdentDb.java
+ * 
+ * Scott Kyle, Erika Sanchez, and Meredith Skolnick
+ *
+ * Purpose: Organizes wave files by id.
+ */ 
+
 import java.awt.Point;
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,8 +38,8 @@ extends Database
 	private Hashtable fCount = null;
 
 	/**
-	 * A vector of vectors of speakers info pre-loded on <code>connect()</code>.
-	 * @see #connect()
+	 * A vector of vectors of speakers info pre-loded on connect()
+	 * 
 	 */
 	private Hashtable oDB = null;
 
@@ -51,7 +59,6 @@ extends Database
 	/**
 	 * Retrieves Speaker's ID by a sample filename.
 	 * @param pstrFileName Name of a .wav file for which ID must be returned
-	 * @param pbTraining indicates whether the filename is a training (<code>true</code>) sample or testing (<code>false</code>)
 	 * @return int ID
 	 * @throws StorageException in case of an error in any I/O operation
 	 */
@@ -110,20 +117,15 @@ extends Database
 	}
 
 	/**
-	 * Retrieves Speaker's ID by a sample filename.
-	 * @param pstrFileName Name of a .wav file for which ID must be returned
-	 * @param pbTraining indicates whether the filename is a training (<code>true</code>) sample or testing (<code>false</code>)
-	 * @return int ID
-	 * @throws StorageException in case of an error in any I/O operation
+	 * Retrieves hashtable with number of wave samples for every ID in the database
 	 */
 	public final Hashtable getNumberPerID()
-	throws StorageException
 	{
 		return fCount;
 	}
 
 	/**
-	 * Connects to the "database" of speakers (opens the text file :-)).
+	 * Connects to the "database" of speakers (opens the text file).
 	 * @throws StorageException in case of any I/O error
 	 */
 	public void connect()
@@ -190,6 +192,8 @@ extends Database
 				}
 
 				oSpeakerInfo.add(oTrainingFilenames);
+				
+				//populates hashtable with size of each entry in wave files
 				fCount.put(iID, oTrainingFilenames.size());
 
 				Debug.debug("Putting ID=" + iID + " along with info vector of size " + oSpeakerInfo.size());
@@ -233,31 +237,4 @@ extends Database
 			throw new StorageException(e.getMessage());
 		}
 	}
-
-	private static int getLast(String folder, String fS){
-		int ID = -1;
-		String temp1,temp2;
-		int temp;
-		final String fString = fS;
-
-		FilenameFilter filter = new FilenameFilter() {
-			public boolean accept(File dir, String name) {
-				return name.endsWith(fString);
-			}
-		};
-
-		File[] aoFiles = new File(folder).listFiles(filter);
-		for(int i = 0;i < aoFiles.length;i++){
-			temp1 = aoFiles[i].getName();
-			temp2 = temp1.substring(0,temp1.lastIndexOf(fString));
-			temp=Integer.parseInt(temp2);
-			if(temp>ID)
-				ID=temp;
-		}
-
-		return ID;
-
-	}
 }
-
-//EOF
