@@ -1,3 +1,11 @@
+/*
+ * speakerApp.java
+ * 
+ * Scott Kyle, Erika Sanchez, and Meredith Skolnick
+ *
+ * Purpose: Performs all speaker identification functions.
+ */
+
 import java.io.*;
 import java.util.*;
 
@@ -52,20 +60,6 @@ public class speakerApp
 		else if(argv[0].compareToIgnoreCase("train")==0){
 			totTrain();
 		}
-		else if(argv[0].compareToIgnoreCase("retest")==0){
-			retest();
-		}
-//		else if(argv[0].compareToIgnoreCase("test")==0){
-//			totTrain();
-//
-//			for(int i=2;i<52;i++){
-//				ident("test.wav");
-//				File sen = new File(sent);
-//				File save = new File("speaker/ids/"+entrySize(9972)+".txt");
-//				System.out.println("Rename "+(i-1)+" "+sen.renameTo(save));
-//				IDFound("9972",samplesFolder+"/9972_"+i+".wav");
-//			}
-//		}
 		else if(argv[0].compareToIgnoreCase("reset")==0){
 			reset();
 		}
@@ -77,7 +71,7 @@ public class speakerApp
 
 	/**
 	 * 
-	 * Starts record process and IDs sample. Returns top 2 IDs to the text file 'sent'.
+	 * Starts record process and IDs sample. Returns ranked list of IDs to the text file 'sent'.
 	 * Saves sample as 'temp.wav'. User must press 'Enter' in console to end this function.
 	 * If a temp sample already exists, it is overwritten.
 	 * 
@@ -102,7 +96,7 @@ public class speakerApp
 			soDB.connect();
 			soDB.query();
 
-			// start the record process, passes the number of the last sample saved
+			// start the record process
 			sample = new record();
 
 
@@ -140,58 +134,10 @@ public class speakerApp
 
 	/**
 	 * 
-	 * Renames the temp.wav and trains it into the system given the correct ID 
+	 * Renames the file corresponding to fName and trains it into the system given the correct ID 
 	 * After the training, the 'sent' file created by begin() is deleted
 	 * 
 	 */       
-	public static void found(String id, String fName){
-		File tempsample = new File(fName);
-//		System.out.println("\tSaving: "+tempsample.getPath());
-		if(tempsample.exists()){
-			try{
-
-				int identity = Integer.parseInt(id);
-				File old = new File(fName);
-				name = old.getName();
-
-				entryTrain(id,name);
-
-				newDB();
-				soDB = new SpeakersIdentDb(database);
-				soDB.connect();
-				soDB.query();
-				
-				train(samplesFolder+"/"+name);
-				
-				
-				File guess = new File(sent);
-				guess.delete();
-				
-			}
-//              MARF specific errors thrown by ident, train, setConfig, connect, query
-			catch(MARFException e)
-			{
-				System.err.println(e.getMessage());
-				e.printStackTrace(System.err);
-			}       
-			//              close the db connection
-			finally
-			{
-				try
-				{
-					soDB.close();
-				}
-				catch(Exception e)
-				{
-					e.printStackTrace(System.err);
-					System.exit(-1);
-				}
-			}
-		}
-		else
-			System.out.println("\nno WAVE file to save");
-	}
-
 	public static void IDFound(String id, String fName){
 		File tempsample = new File(fName);
 
@@ -222,13 +168,14 @@ public class speakerApp
 				else
 					name = old.getName();
 				
-				if(name.equalsIgnoreCase("temp.wav")){
+				if(name.equalsIgnoreCase(fName)){
 					System.out.println("Didn't change file name. No saving done.");
 					System.exit(0);
 				}
 				
 //				System.out.println("\n"+name+" saved.");
 
+				//create or edit the voiceprint
 				entryTrain(id,name);
 
 				newDB();
@@ -348,9 +295,6 @@ public class speakerApp
 	 * and the file with sent IDs.
 	 * 
 	 */       
-
-
-
 	public static void reset(){
 		File[] aFiles = new File(samplesFolder).listFiles();
 		File[] bFiles = new File(dbFolder).listFiles();
@@ -384,9 +328,7 @@ public class speakerApp
 	 * 
 	 * Delete one ID from the database. Deletes txt entry file, and all WAVE files
 	 * 
-	 */              
-
-
+	 */             
 	public static void delete(String id){
 		try{
 
@@ -424,64 +366,16 @@ public class speakerApp
 		}
 	}
 	
-	private static void retest(){
-		try{
-			
-			StringTokenizer token;
-			String folder = "speaker/results";
-			File[] boFiles = new File(dbFolder).listFiles();
-//			78-84
-			File result, sen;
-			BufferedReader read;
-			Writer write;
-			String temp, id;
-			int j=1, k;
-			
-			for(int i=0;i<boFiles.length;i++){
-				id = boFiles[i].getName();
-				
-				if (id.indexOf(".txt") < 0)
-					continue;
-				
-				id = id.substring(0, id.indexOf(".txt"));
-				if(Integer.parseInt(id)<78 || Integer.parseInt(id)>84)
-					continue;
-				System.out.println(id+"\t");
-				read = new BufferedReader(new FileReader(boFiles[i]));
-				temp = read.readLine();
-				token = new StringTokenizer(temp,"|");
-				temp = token.nextToken();
-				if(!(id.equals("78"))){
-					temp +="|"+token.nextToken()+"|"+token.nextToken();
-					j=3;
-				}
-				write = new BufferedWriter(new FileWriter(boFiles[i]));
-				write.append(temp);		
-				write.close();
-				
-				totTrain();
-				
-				k=j+3;
 
-				for(;j<k;j++){
-					ident(id+"_"+(j+1)+".wav");
-					sen = new File(sent);
-					result = new File(folder+"/"+id+"_"+j+".txt");
-//					System.out.println("\tRename results "+j+": "+sen.renameTo(result));
-					found(id,samplesFolder+"/"+id+"_"+(j+1)+".wav");					
-				}
-			}
-		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
-		
-	}
-	
+	/**
+	 * 
+	 * returns the number of WAVE files saved for the id 'input'
+	 * 
+	 */             
 	private static int entrySize(int input){
+		
 		Hashtable counts = new Hashtable();
 		try{
-
 			String strFileName;
 
 			soDB = new SpeakersIdentDb(database);
@@ -491,6 +385,7 @@ public class speakerApp
 			soDB.query();
 
 			aoFiles = new File(samplesFolder).listFiles();
+			//in case training has not already been done, each wave file needs to be correlated with its ID
 			for(int i = 0; i < aoFiles.length; i++)
 			{
 				strFileName = aoFiles[i].getPath();
@@ -690,18 +585,6 @@ public class speakerApp
 		MARF.setClassificationMethod(MARF.EUCLIDEAN_DISTANCE);
 		MARF.setDumpSpectrogram(false);
 		MARF.setSampleFormat(MARF.WAV);
-	}
-	
-	private static final void test(){
-		try{
-			File dest = new File("speaker/ids/"+entrySize(9972)+".txt");
-			dest.createNewFile();
-			File orig = new File(sent);
-			System.out.println(orig.renameTo(dest));
-		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
 	}
 
 }
